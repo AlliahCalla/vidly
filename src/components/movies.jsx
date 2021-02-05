@@ -3,18 +3,17 @@ import { getMovies, deleteMovie } from "../services/fakeMovieService";
 import Like from "./common/like";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
+import ListGroup from './common/listGroup';
+import { getGenres } from "../services/fakeGenreService";
 
 class Movies extends Component {
   state = {
     movies: getMovies(),
+    genres: [],
     pageSize: 4,
     currentPage: 1,
+    
   };
-
-  constructor() {
-    super();
-    console.log(this.state.movies);
-  }
 
   handleDelete = (movie) => {
     //deleteMovie(movie._id);
@@ -43,10 +42,12 @@ class Movies extends Component {
     const movies = paginate(allMovies, currentPage, pageSize);
 
     return (
-      <>
-        <div>
+      <div className = "row">
+      <div className="col-2">
+        <ListGroup items={this.state.genres}/>
+      </div>
+        <div className ="col">
           <p>Showing {count} movies in the database</p>
-
           <table className="table">
             <thead>
               <tr>
@@ -90,7 +91,7 @@ class Movies extends Component {
           currentPage={currentPage}
           onPageChange={this.handlePageChange}
         />
-      </>
+      </div>
     );
   }
 }
