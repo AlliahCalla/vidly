@@ -2,7 +2,7 @@ import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
 import { getMovie } from "./../services/fakeMovieService";
-import { useNavigate } from "react-router-dom";
+import { getGenres } from "../services/fakeGenreService";
 
 class MovieForm extends Form {
   state = {
@@ -26,10 +26,12 @@ class MovieForm extends Form {
     const { id } = this.props.match.params;
     const data = { ...this.state.data };
     const movie = getMovie(id);
-    data.title = movie.title;
-    data.genre = movie.genre.name;
-    data.numberInStock = movie.numberInStock;
-    data.rate = movie.dailyRentalRate;
+    if (id != "new") {
+      data.title = movie.title;
+      data.genre = movie.genre.name;
+      data.numberInStock = movie.numberInStock;
+      data.rate = movie.dailyRentalRate;
+    }
 
     this.setState({ data });
   }
@@ -38,16 +40,23 @@ class MovieForm extends Form {
     //Call the server
 
     console.log("Submitted");
-    let navigate = useNavigate();
-    navigate("/movies");
+    this.props.history.push("/movies");
+    console.log(this.props.history);
   };
   render() {
+    const genres = getGenres();
+    const options = [""];
+    genres.forEach((option) => {
+      options.push(option.name);
+    });
+
     return (
       <div>
         <h1>Movie Form</h1>
         <form onSubmit={this.handleSubmit}>
           {this.renderInput("title", "Title")}
-          {this.renderInput("genre", "Genre")}
+
+          {this.renderSelect("genre", "Genre", options)}
           {this.renderInput("numberInStock", "Number in Stock")}
           {this.renderInput("rate", "Rate")}
           {this.renderButton("Save")}
