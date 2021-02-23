@@ -15,9 +15,8 @@ class LoginForm extends Form {
 
   doSubmit = () => {
     //Call the server
-    let history = useHistory();
     console.log("Submitted");
-    history.push("/movies");
+    this.props.history.push("/movies");
   };
 
   render() {
