@@ -1,64 +1,66 @@
 import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
-import { getMovie } from "./../services/fakeMovieService";
+import { getMovie, saveMovie } from "./../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 
 class MovieForm extends Form {
   state = {
     data: {
       title: "",
-      genre: "",
-      numberInStock: null,
-      rate: null,
+      genreId: "",
+      numberInStock: "",
+      dailyRentalRate: "",
     },
+    genres: [],
     errors: {},
   };
 
   schema = {
+    _id: Joi.string(),
     title: Joi.string().required().label("Title"),
-    genre: Joi.string().required().label("Genre"),
-    numberInStock: Joi.number().min(0).max(500),
-    rate: Joi.number().min(0).max(10),
+    genreId: Joi.string().required().label("Genre"),
+    numberInStock: Joi.number().min(0).max(100),
+    dailyRentalRate: Joi.number().min(0).max(10),
   };
 
   componentDidMount() {
-    const { id } = this.props.match.params;
-    const data = { ...this.state.data };
-    const movie = getMovie(id);
-    if (id != "new") {
-      data.title = movie.title;
-      data.genre = movie.genre.name;
-      data.numberInStock = movie.numberInStock;
-      data.rate = movie.dailyRentalRate;
-    }
+    const genres = getGenres();
+    this.setState({ genres });
 
-    this.setState({ data });
+    const movieId = this.props.match.params.id;
+    if (movieId === "new") return;
+
+    const movie = getMovie(movieId);
+    if (!movie) return this.props.history.replace("/not-found");
+
+    this.setState({ data: this.mapToViewModel(movie) });
+  }
+
+  mapToViewModel(movie) {
+    return {
+      _id: movie._id,
+      title: movie.title,
+      genreId: movie.genre._id,
+      numberInStock: movie.numberInStock,
+      dailyRentalRate: movie.dailyRentalRate,
+    };
   }
 
   doSubmit = () => {
-    //Call the server
+    saveMovie(this.state.data);
 
-    console.log("Submitted");
     this.props.history.push("/movies");
-    console.log(this.props.history);
   };
   render() {
-    const genres = getGenres();
-    const options = [""];
-    genres.forEach((option) => {
-      options.push(option.name);
-    });
-
     return (
       <div>
         <h1>Movie Form</h1>
         <form onSubmit={this.handleSubmit}>
           {this.renderInput("title", "Title")}
-
-          {this.renderSelect("genre", "Genre", options)}
+          {this.renderSelect("genreId", "Genre", this.state.genres)}
           {this.renderInput("numberInStock", "Number in Stock")}
-          {this.renderInput("rate", "Rate")}
+          {this.renderInput("dailyRentalRate", "Rate")}
           {this.renderButton("Save")}
         </form>
       </div>
