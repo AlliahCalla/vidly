@@ -1,6 +1,5 @@
 import http from "./httpService";
 import { apiUrl } from "../config.json";
-import { ErrorBoundary } from "@sentry/react";
 
 const apIEndpoint = apiUrl + "/movies";
 
